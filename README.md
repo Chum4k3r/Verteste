@@ -15,7 +15,7 @@ Faça o download do código fonte, ou clone o repositório
 git clone https://github.com/Chum4k3r/Verteste verteste
 ```
 
-Após concluído o download, usando a linha de comando, instale o pacote usando pip:
+Após concluído o download, instale o pacote usando pip:
 
 ```
 pip install -e verteste
