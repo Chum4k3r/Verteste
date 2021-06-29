@@ -71,8 +71,8 @@ class Verteste(QObject):
         # Other actions logic
         gui.actionManual.triggered.connect(
             main.on_actionManual_triggered)
-        gui.actionHistorico.triggered.connect(
-            main.on_actionHistorico_triggered)
+#        gui.actionHistorico.triggered.connect(
+#            main.on_actionHistorico_triggered)
         gui.actionSobre.triggered.connect(gui.aboutDialog.open)
         return
 
@@ -87,6 +87,8 @@ class Verteste(QObject):
 
     @property
     def activeProject(self):  # Facilitador de acesso ao ProjectItem ativo
+        if self.projects.rowCount() < 1:
+            return
         return self.projects[self.ui.projComboBox.currentIndex()]
 
     @Slot()
@@ -101,6 +103,8 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionSalvarProjeto_triggered(self):
+        if self.projects.rowCount() < 1:
+            return
         # Salva projeto ativo
         defaultname = os.getcwd() + os.sep + self.activeProject.name + '.json'
         filename = QFileDialog.getSaveFileName(self.ui, "Salvar Projeto",
@@ -136,6 +140,8 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionAlterarProjeto_triggered(self):
+        if self.projects.rowCount() < 1:
+            return
         # Carrega informações do projeto ativo na caixa de diálogo
         # Para edição
         dialog = self.ui.projDialog
@@ -147,6 +153,8 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionFecharProjeto_triggered(self):
+        if self.projects.rowCount() < 1:
+            return
         # Remove o projeto ativo do modelo de projetos abertos
         projidx = self.ui.projComboBox.currentIndex()
         self.projects.remove(projidx)
@@ -200,6 +208,8 @@ class Verteste(QObject):
 # IMPLEMENTAÇÃO PARA A LISTA
     @property
     def activeList(self):
+        if self.activeProject.lists.rowCount() < 1:
+            return
         # facilitador de acesso à lista selecionada para visualização
         return self.activeProject.lists[self.ui.listComboBox.currentIndex()]
 
@@ -217,6 +227,9 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionAlterarLista_triggered(self):
+        if (self.projects.rowCount() < 1
+                or self.activeProjec.lists.rowCount() < 1):
+            return
         # Carrega as informações da lista ativa na caixa de diálogo
         self.ui.listDialog.setWindowTitle("Alterar lista")
         self.ui.listDialog.nameLineEdit.setText(self.activeList.name)
@@ -225,6 +238,10 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionRemoverLista_triggered(self):
+        if (self.projects.rowCount() < 1
+                or self.activeProjec.lists.rowCount() < 1):
+            return
+
         # Carrega o modelo das listas para a caixa de remoção
         self.ui.removeDialog.setWindowTitle("Remover lista")
         self.ui.removeDialog.tableView.setModel(self.activeProject.lists)
@@ -274,6 +291,9 @@ class Verteste(QObject):
 # IMPLEMENTAÇÃO DA LINHA
     @Slot()
     def on_actionInserirLinha_triggered(self):
+        if (self.projects.rowCount() < 1
+                or self.activeProjec.lists.rowCount() < 1):
+            return
         # Inclui nova linha e desativa caixa de escolha de linhas
         try:
             self.activeList.lines.new('New', '', '', '', '')
@@ -288,6 +308,10 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionAlterarLinha_triggered(self):
+        if (self.projects.rowCount() < 1
+                or self.activeProjec.lists.rowCount() < 1
+                or self.activeList.lines.rowCount() < 1):
+            return
         idcbox = self.ui.lineDialog.idComboBox
         self.ui.lineDialog.setWindowTitle("Alterar linha")
         idcbox.setEnabled(True)   # ativa a escolha de linhas
@@ -302,6 +326,10 @@ class Verteste(QObject):
 
     @Slot()
     def on_actionRemoverLinha_triggered(self):
+        if (self.projects.rowCount() < 1
+                or self.activeProjec.lists.rowCount() < 1
+                or self.activeList.lines.rowCount() < 1):
+            return
         # Carrega modelo de linhas na caixa de remoção.
         self.ui.removeDialog.setWindowTitle("Remover linha")
         self.ui.removeDialog.tableView.setModel(self.activeList.lines)
@@ -383,13 +411,5 @@ class Verteste(QObject):
         helppath = os.path.dirname(curr)
         with open(helppath + os.sep + 'README.md') as manual:
             self.ui.helpDialog.textBrowser.setMarkdown(manual.read())
-        self.ui.helpDialog.open()
-        return
-
-    @Slot()
-    def on_actionHistorico_triggered(self):
-        self.ui.helpDialog.setWindowTitle("Historico de edições da seção")
-        self.ui.helpDialog.textBrowser.setMarkdown(
-            "Historico de edições da seção\n\nEm desenvolvimento...")
         self.ui.helpDialog.open()
         return
