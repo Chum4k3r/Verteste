@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import os
 import json
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QObject, Slot, QModelIndex
 from PySide6.QtWidgets import QFileDialog
 try:
     from .model import ProjectsModel, ListsModel, LinesModel
@@ -35,6 +35,8 @@ class Verteste(QObject):
             main.on_projComboBox_currentChanged)
         gui.projComboBox.textActivated.connect(
             main.on_projComboBox_currentChanged)
+        gui.projTreeView.doubleClicked.connect(
+            main.on_projTreeView_doubleClicked)
 
 #        # List logics
         gui.actionNovaLista.triggered.connect(
@@ -51,6 +53,8 @@ class Verteste(QObject):
             main.on_listComboBox_currentChanged)
         gui.listComboBox.currentTextChanged.connect(
             main.on_listComboBox_currentChanged)
+        gui.listTableView.doubleClicked.connect(
+            main.on_listTableView_doubleClicked)
 
 #        # Line logics
         gui.actionInserirLinha.triggered.connect(
@@ -166,10 +170,10 @@ class Verteste(QObject):
         # Repassa valores da caixa de diálogo para projeto ativo
         # Dados persistentes (ID, hora de criação) são mantidos.
         dialog = self.ui.projDialog
-        self.activeProject.setItemData(self.activeProject.id,
-                                       dialog.nameLineEdit.text(),
-                                       dialog.descrTextEdit.toPlainText(),
-                                       self.activeProject.created_at)
+        self.activeProject.setRowData(self.activeProject.id,
+                                      dialog.nameLineEdit.text(),
+                                      dialog.descrTextEdit.toPlainText(),
+                                      self.activeProject.created_at)
         # Força atualização das informações sobre novo projeto
         self.on_projComboBox_currentChanged()
         dialog.reset()
@@ -203,6 +207,18 @@ class Verteste(QObject):
             self.ui.projTreeView.setModel(ListsModel(None))
             self.ui.listComboBox.setModel(ListsModel(None))
             self.ui.on_listComboBox_currentChanged()
+        return
+
+    @Slot()
+    def on_projTreeView_doubleClicked(self, midx: QModelIndex):
+        if (self.projects.rowCount() < 1
+                or self.activeProject.lists.rowCount() < 1):
+            return
+        # Carrega as informações da lista ativa na caixa de diálogo
+        self.ui.listDialog.setWindowTitle("Alterar lista")
+        self.ui.listComboBox.setCurrentIndex(midx.row())
+        self.ui.listDialog.nameLineEdit.setText(self.activeList.name)
+        self.ui.listDialog.open()
         return
 
 # IMPLEMENTAÇÃO PARA A LISTA
@@ -253,10 +269,10 @@ class Verteste(QObject):
         # Atualiza informações da lista ativa, mas dados persistentes
         # (ID da lista e do projeto, momento de criação) são mantidos
         name = self.ui.listDialog.nameLineEdit.text()
-        self.activeList.setItemData(self.activeList.id,
-                                    name,
-                                    self.activeList.projid,
-                                    self.activeList.created_at)
+        self.activeList.setRowData(self.activeList.id,
+                                   name,
+                                   self.activeList.projid,
+                                   self.activeList.created_at)
         # Força atualização das informações da lista
         self.on_listComboBox_currentChanged()
         self.ui.listDialog.reset()
@@ -286,6 +302,22 @@ class Verteste(QObject):
             self.ui.listIdLineEdit.setText("")
             self.ui.listTimeLineEdit.setText("")
             self.ui.listTableView.setModel(LinesModel(None))
+        return
+
+    @Slot()
+    def on_listTableView_doubleClicked(self, midx: QModelIndex):
+        if (self.projects.rowCount() < 1
+                or self.activeProject.lists.rowCount() < 1
+                or self.activeList.lines.rowCount() < 1):
+            return
+        idcbox = self.ui.lineDialog.idComboBox
+        self.ui.lineDialog.setWindowTitle("Alterar linha")
+        idcbox.setModel(self.activeList.lines)  # define as linhas
+        idcbox.setModelColumn(2)  # mostra as TAGs como identificação da linha
+        idcbox.setEnabled(False)   # desativa a escolha de linhas
+        idcbox.setCurrentIndex(midx.row())
+        self.on_lineDialog_idComboBox_currentChanged(midx.row())
+        self.ui.lineDialog.open()
         return
 
 # IMPLEMENTAÇÃO DA LINHA
@@ -355,9 +387,9 @@ class Verteste(QObject):
         # Se a escolha de linha dentro da janela de edição está desativada
         # Significa que uma nova linha foi adicionada, sendo a última linha.
         dialog = self.ui.lineDialog
-        idx = (dialog.idComboBox.currentIndex()
-               if dialog.idComboBox.isEnabled()
-               else -1)
+        idx = (-1 if not dialog.idComboBox.isEnabled()
+               and self.activeList.lines[-1].name == 'New'
+               else dialog.idComboBox.currentIndex())
         linha = self.activeList.lines[idx]
 
         # Valores da caixa de diálogo são recolhidos
@@ -370,14 +402,15 @@ class Verteste(QObject):
         # Linha tem valores redefinidos, exceto persistentes
         # como ID, ID da lista a qual pertence, horário de criação;
         # Também aumenta o contador da versão em 1 a cada edição.
-        linha.setItemData(linha.id, name, tag, type, signal, pid,
-                          linha.version+1, linha.listid, linha.created_at)
+        linha.setRowData(linha.id, name, tag, type, signal, pid,
+                         linha.version+1, linha.listid, linha.created_at)
         dialog.reset()
         return
 
     @Slot()
     def on_lineDialog_rejected(self):
-        if not self.ui.lineDialog.idComboBox.isEnabled():
+        if (not self.ui.lineDialog.idComboBox.isEnabled()
+                and self.activeList.lines[-1].name == 'New'):
             # Se a escolha de linhas estiver desativada a nova linha
             # foi cancelada, devendo ser, portanto, removida.
             self.activeList.lines.remove(self.activeList.lines.rowCount()-1)

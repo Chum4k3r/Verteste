@@ -91,11 +91,16 @@ Todas as informações inseridas para criar Projetos, Listas ou Linhas são edit
 Para editar o projeto, utiliza-se o menu `Arquivo > Alterar projeto` ou o atalho `Ctrl + Shift + E`. A mesma janela de criação
 surgirá, agora com os dados do projeto já presentes para edição.
 
-Para editar uma linha, utiliza-se o menu `Editar > Alterar linha` ou o atalho `Ctrl + E`. A mesma janela de criação de linhas aparece,
+Para editar uma linha, utiliza-se o menu `Editar > Alterar linha`, ou o atalho `Ctrl + E`. A mesma janela de criação de linhas aparece,
 agora com a caixa de seleção entitulada ID ativa, permitindo a escolha da linha que será editada e atualizando os campos
 com as informações pré-existentes na linha.
 
+Ao clicar duas vezes em uma linha, na tabela, a janela de edição de linha também aparece, porém, a única linha editável é a mesma clicada,
+ou seja, a caixa de seleção de linhas estará desativada.
+
 Uma lista só pode ter seu nome alterado, para isso, vá ao menu `Editar > Alterar lista` ou use o atalho `Ctrl + A`.
+É possível editar o nome de uma lista que não está selecionada, ao clicar duas vezes em seu nome no quadro de listas, à esquerda na janela.
+Esse procedimento tornará a lista ativa.
 
 
 ### Salvando e carregando informações
