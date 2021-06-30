@@ -1,21 +1,21 @@
 # This Python file uses the following encoding: utf-8
 from PySide6.QtCore import QDateTime
-from .basemodels import BasicModel, BasicItem, dateTimeFormatString
+from .basemodels import BasicModel, BasicRow, dateTimeFormatString
 
 
-class LineItem(BasicItem):
+class LineRow(BasicRow):
     # Item básico de linha
     def __init__(self, id: int, name: str, tag: str,
                  type: str, signal: str, pid: str, version: int,
                  listid: int, created_at: str = None):
-        BasicItem.__init__(self, 9)
+        BasicRow.__init__(self, 9)
         # Possui 9 itens em sua lista, registra o momento de criação
         if created_at is None:
             created_at = (QDateTime.currentDateTime()
                           .toString(dateTimeFormatString))
         # Define os valores de seus itens
-        self.setItemData(id, name, tag, type, signal,
-                         pid, version, listid, created_at)
+        self.setRowData(id, name, tag, type, signal,
+                        pid, version, listid, created_at)
         return
 
     def toDict(self):
@@ -28,9 +28,9 @@ class LineItem(BasicItem):
                 'version': self.version,
                 'created_at': self.created_at}
 
-    def setItemData(self, id: int, name: str, tag: str,
-                    type: str, signal: str, pid: str, version: int,
-                    listid: int, created_at: str = None):
+    def setRowData(self, id: int, name: str, tag: str,
+                   type: str, signal: str, pid: str, version: int,
+                   listid: int, created_at: str = None):
         # Redefine os valores da lista.
         self.modeldata[0].setText(str(id))
         self.modeldata[1].setText(str(name))
@@ -83,7 +83,7 @@ class LineItem(BasicItem):
 
 class LinesModel(BasicModel):
     # Modelo de linha, extendendo o modelo básico
-    def __init__(self, parent: BasicItem = None):
+    def __init__(self, parent: BasicRow = None):
         BasicModel.__init__(self, 0, 9, parent)
         # inicialmente sem linhas e com 9 colunas
         # definidas pelo cabeçalho abaixo
@@ -99,10 +99,10 @@ class LinesModel(BasicModel):
             raise RuntimeWarning("Essa lista já está no limite de TAGs (50)")
         # A adição de uma nova linha no modelo
         # consiste na criação de um item de linha
-        self.items.append(LineItem(id, name, tag, type, signal,
-                          pid, version, self.parent().id, created_at))
+        self.rows.append(LineRow(id, name, tag, type, signal,
+                         pid, version, self.parent().id, created_at))
         # E a inclusão da lista de itens padrão no modelo
-        self.appendRow(self.items[-1].modeldata)
+        self.appendRow(self.rows[-1].modeldata)
         return
 
     def new(self, name: str, tag: str, type: str, signal: str, pid: str):

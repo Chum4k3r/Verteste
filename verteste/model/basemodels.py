@@ -8,7 +8,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 dateTimeFormatString = "dd/MM/yyyy @ hh:mm:ss, 'GMT' t"
 
 
-class BasicItem(QObject):
+class BasicRow(QObject):
     # Um item básico dos modelos é, na verdade, uma capsula de uma lista de
     # itens de modelo padrão.
     def __init__(self, ncols):
@@ -23,7 +23,7 @@ class BasicItem(QObject):
     def __getitem__(self, idx: int):  # facilitador de acesso
         return self.modeldata[idx]
 
-    def setItemData(self):
+    def setRowData(self):
         # Um BasicItem é capaz de redefinir os
         # valores dos itens contidos em sua lista
         pass
@@ -39,15 +39,15 @@ class BasicItem(QObject):
 class BasicModel(QStandardItemModel):
     # Modelo base para os modelos do programa. Uma extensão do modelo padrão
     def __init__(self, rows: int, cols: int,
-                 parent: BasicItem = None):
+                 parent: BasicRow = None):
         # Modelo pode ter um item pai, do qual obterá índice e estará contido
         # no dicionário para registro ou recriação
         QStandardItemModel.__init__(self, rows, cols, parent)
-        self.items = []  # Lista para prover itens na linha do modelo
+        self.rows = []  # Lista para prover itens na linha do modelo
         return
 
     def __getitem__(self, idx: int):
-        return self.items[idx]
+        return self.rows[idx]
 
     def add(self):
         # Um modelo é capaz de adicionar itens a si mesmo
@@ -60,11 +60,11 @@ class BasicModel(QStandardItemModel):
     def remove(self, row: int):
         # Modelo é capaz de remover um item a partir de seu índice de linha
         self.takeRow(row)
-        return self.items.pop(row)
+        return self.rows.pop(row)
 
     def toDictList(self):
         # Modelo é capaz de criar uma lista de dicionários de seus itens
         data = []
         for row in range(self.rowCount()):
-            data.append(self.items[row].toDict())
+            data.append(self.rows[row].toDict())
         return data

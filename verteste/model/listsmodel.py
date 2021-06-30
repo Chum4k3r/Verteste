@@ -1,18 +1,18 @@
 # This Python file uses the following encoding: utf-8
 from PySide6.QtCore import QDateTime
-from .basemodels import BasicModel, BasicItem, dateTimeFormatString
+from .basemodels import BasicModel, BasicRow, dateTimeFormatString
 from .linesmodel import LinesModel
 
 
-class ListItem(BasicItem):
+class ListRow(BasicRow):
     def __init__(self, id: int, name: str, projid: int,
                  created_at: str = None):
-        BasicItem.__init__(self, 4)
+        BasicRow.__init__(self, 4)
         # Um novo item de lista registra seu horário de criação
         if created_at is None:
             created_at = (QDateTime.currentDateTime()
                           .toString(dateTimeFormatString))
-        self.setItemData(id, name, projid, created_at)
+        self.setRowData(id, name, projid, created_at)
         # Um item de lista possui um modelo de linhas
         self.lines = LinesModel(self)
         return
@@ -23,8 +23,8 @@ class ListItem(BasicItem):
                 'created_at': self.created_at,
                 'lines': self.lines.toDictList()}
 
-    def setItemData(self, id: int, name: str,
-                    projid: int, created_at: str = None):
+    def setRowData(self, id: int, name: str,
+                   projid: int, created_at: str = None):
         self.modeldata[0].setText(str(id))
         self.modeldata[1].setText(str(name))
         self.modeldata[2].setText(str(projid))
@@ -49,7 +49,7 @@ class ListItem(BasicItem):
 
 
 class ListsModel(BasicModel):
-    def __init__(self, parent: BasicItem = None):
+    def __init__(self, parent: BasicRow = None):
         BasicModel.__init__(self, 0, 4, parent)
         # Uma lista possui quatro colunas, definidas pelo cabeçalho abaixo
         self.setHorizontalHeaderLabels(['ID', 'Nome', 'Projeto (ID)',
@@ -57,8 +57,8 @@ class ListsModel(BasicModel):
         return
 
     def add(self, id: int, name: str, created_at: str = None):
-        self.items.append(ListItem(id, name, self.parent().id, created_at))
-        self.appendRow(self.items[-1].modeldata)
+        self.rows.append(ListRow(id, name, self.parent().id, created_at))
+        self.appendRow(self.rows[-1].modeldata)
         return
 
     def new(self, name: str):
