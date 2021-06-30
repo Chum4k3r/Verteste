@@ -179,6 +179,7 @@ class Ui_Verteste(QMainWindow):
         self.listTableView = QTableView(self.listFrame)
         self.listTableView.setObjectName(u"listTableView")
         self.listTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.listTableView.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.gridLayout_2.addWidget(self.listTableView, 4, 0, 1, 2)
 
