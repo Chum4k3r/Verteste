@@ -1,6 +1,5 @@
 # Verteste
 
-
 Esse aplicativo é resultado de um processo avaliativo para a Vertesis.
 
 Desenvolvido por: João Vitor Gutkoski Paes
